@@ -1,0 +1,6 @@
+Hello, Python!
+This is the second line.
+Third line goes here.
+Fourth line of the file.
+Fifth and final line.
+Overwritten content!
