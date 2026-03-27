@@ -33,16 +33,36 @@ def insert_from_console(conn):
 
 # 📌 3. Обновление
 def update_contact(conn):
-    name = input("Enter name to update: ")
-    new_phone = input("Enter new phone: ")
+    old_name = input("Enter current name: ")
+
+    new_name = input("Enter new name (or press Enter to skip): ")
+    new_phone = input("Enter new phone (or press Enter to skip): ")
 
     with conn.cursor() as cur:
-        cur.execute(
-            "UPDATE phonebook SET phone = %s WHERE name = %s",
-            (new_phone, name)
-        )
+        if new_name and new_phone:
+            cur.execute(
+                "UPDATE phonebook SET name = %s, phone = %s WHERE name = %s",
+                (new_name, new_phone, old_name)
+            )
+
+        elif new_name:
+            cur.execute(
+                "UPDATE phonebook SET name = %s WHERE name = %s",
+                (new_name, old_name)
+            )
+
+        elif new_phone:
+            cur.execute(
+                "UPDATE phonebook SET phone = %s WHERE name = %s",
+                (new_phone, old_name)
+            )
+
+        else:
+            print("Nothing to update")
+            return
+
     conn.commit()
-    print("Updated")
+    print("Updated successfully")
 
 
 # 📌 4. Поиск
