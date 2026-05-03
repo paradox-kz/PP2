@@ -27,10 +27,10 @@ class MickeyClock:
         now = datetime.now()
 
         minute = now.minute
-        second = now.second
+        hour = now.hour
 
         minute_angle = -(minute * 6)
-        second_angle = -(second * 6)
+        second_angle = -(hour*30+minute*0.5)
 
         return minute_angle, second_angle
 

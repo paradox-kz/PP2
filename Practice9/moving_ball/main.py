@@ -18,16 +18,16 @@ def main():
                 running = False
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
+                if event.key == pygame.K_w:
                     game.move(0, -20)
 
-                elif event.key == pygame.K_DOWN:
+                elif event.key == pygame.K_s:
                     game.move(0, 20)
 
-                elif event.key == pygame.K_LEFT:
+                elif event.key == pygame.K_a:
                     game.move(-20, 0)
 
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_d:
                     game.move(20, 0)
 
         clock.tick(60)
