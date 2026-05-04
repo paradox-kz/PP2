@@ -55,16 +55,33 @@ def filter_group():
 
 def paginate():
     offset = 0
+    limit = 3
+
     while True:
-        cur.execute("SELECT name,email FROM contacts LIMIT 3 OFFSET %s", (offset,))
-        print(cur.fetchall())
+        cur.execute("""
+            SELECT c.name, c.email, p.phone
+            FROM contacts c
+            LEFT JOIN phones p ON c.id = p.contact_id
+            LIMIT %s OFFSET %s
+            """, (limit, offset))
+
+        rows = cur.fetchall()
+
+        if not rows:
+            print("No more contacts.")
+        else:
+            print("\n--- Contacts ---")
+            for i, row in enumerate(rows, start=1):
+                phone = row[2] if row[2] else "No phone"
+                print(f"{i}. {row[0]} | {row[1]} | {phone}")
 
         cmd = input("next/prev/quit: ")
+
         if cmd == "next":
-            offset += 3
+            offset += limit
         elif cmd == "prev":
-            offset -= 3
-        else:
+            offset = max(0, offset - limit)
+        elif cmd == "quit":
             break
 
 
