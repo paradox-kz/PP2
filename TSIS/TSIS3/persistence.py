@@ -1,24 +1,50 @@
-import json
+import json, os
 
-def save_score(score, distance):
-    data = load_scores()
-    data.append({"score": score, "distance": distance})
+LEADERBOARD_FILE = "leaderboard.json"
+SETTINGS_FILE    = "settings.json"
 
-    data = sorted(data, key=lambda x: x["score"], reverse=True)
+DEFAULT_SETTINGS = {
+    "sound":      True,
+    "car_color":  "blue",
+    "difficulty": "normal",
+}
 
-    with open("leaderboard.json", "w") as f:
-        json.dump(data, f)
 
-def load_scores():
-    try:
-        with open("leaderboard.json") as f:
-            return json.load(f)
-    except:
-        return []
 
-def load_settings():
-    try:
-        with open("settings.json") as f:
-            return json.load(f)
-    except:
-        return {"difficulty": "normal"}
+def load_leaderboard():
+    if os.path.exists(LEADERBOARD_FILE):
+        try:
+            with open(LEADERBOARD_FILE, "r") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return []
+
+
+def save_leaderboard(entries):
+    entries = sorted(entries, key=lambda e: e["score"], reverse=True)[:10]
+    with open(LEADERBOARD_FILE, "w") as f:
+        json.dump(entries, f, indent=2)
+    return entries
+
+
+def add_score(name: str, score: int, distance: float):
+    entries = load_leaderboard()
+    entries.append({"name": name, "score": score, "distance": int(distance)})
+    return save_leaderboard(entries)
+
+
+def load_settings() -> dict:
+    s = DEFAULT_SETTINGS.copy()
+    if os.path.exists(SETTINGS_FILE):
+        try:
+            with open(SETTINGS_FILE, "r") as f:
+                s.update(json.load(f))
+        except Exception:
+            pass
+    return s
+
+
+def save_settings(settings: dict):
+    with open(SETTINGS_FILE, "w") as f:
+        json.dump(settings, f, indent=2)

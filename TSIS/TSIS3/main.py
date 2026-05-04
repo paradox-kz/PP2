@@ -1,21 +1,63 @@
-import pygame
-from racer import run_game
-from ui import menu, leaderboard_screen
+"""main.py — entry point; state machine connecting all screens"""
+import pygame, sys
+from ui      import MainMenuScreen, SettingsScreen, GameOverScreen, \
+                    LeaderboardScreen, UsernameScreen
+from racer   import GameScreen
+from persistence import load_settings, save_settings
 
-pygame.init()
 
-screen = pygame.display.set_mode((600, 800))
-pygame.display.set_caption("Racer TSIS3")
+def main():
+    pygame.init()
+    surf = pygame.display.set_mode((400, 600))
+    pygame.display.set_caption("Racer — TSIS 3")
 
-while True:
-    choice = menu(screen)
+    settings    = load_settings()
+    state       = "menu"
+    username    = "Racer"
+    last_result = None
 
-    if choice == "play":
-        run_game(screen)
+    while True:
 
-    elif choice == "leaderboard":
-        leaderboard_screen(screen)
+        if state == "menu":
+            choice = MainMenuScreen(surf, settings).run()
+            if   choice == "play":        state = "username"
+            elif choice == "settings":    state = "settings"
+            elif choice == "leaderboard": state = "leaderboard"
+            elif choice == "quit":
+                pygame.quit(); sys.exit()
 
-    elif choice == "quit":
-        pygame.quit()
-        exit()
+
+        elif state == "username":
+            name = UsernameScreen(surf).run()
+            if name:
+                username = name
+                state    = "game"
+            else:
+                state = "menu"
+
+
+        elif state == "game":
+            last_result = GameScreen(surf, settings, username).run()
+            state = "gameover"
+
+
+        elif state == "gameover":
+            choice = GameOverScreen(surf, last_result).run()
+            state  = "game" if choice == "retry" else "menu"
+
+
+        elif state == "settings":
+            new = SettingsScreen(surf, settings).run()
+            if new is not None:
+                settings = new
+                save_settings(settings)
+            state = "menu"
+
+
+        elif state == "leaderboard":
+            LeaderboardScreen(surf).run()
+            state = "menu"
+
+
+if __name__ == "__main__":
+    main()
